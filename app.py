@@ -21,7 +21,7 @@ témoins — donnée non disponible à ce stade du projet.
 
 st.write("Importez une photo de feuille de blé pour tester le fonctionnement du modèle (détection sain/rouille jaune).")
 
-model = tf.keras.models.load_model("modele_wheat_yellowrust.keras")
+model = tf.keras.models.load_model("modele_wheat_yellowrust.h5")
 
 fichier_image = st.file_uploader("Choisissez une image", type=["jpg", "jpeg", "png"])
 
