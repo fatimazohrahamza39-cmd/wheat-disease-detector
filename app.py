@@ -1,5 +1,6 @@
 import streamlit as st
 import tensorflow as tf
+from tensorflow.keras import layers, models
 import numpy as np
 from PIL import Image
 
@@ -21,7 +22,31 @@ témoins — donnée non disponible à ce stade du projet.
 
 st.write("Importez une photo de feuille de blé pour tester le fonctionnement du modèle (détection sain/rouille jaune).")
 
-model = tf.keras.models.load_model("modele_wheat_yellowrust.h5")
+# Reconstruction de l'architecture (identique à celle entraînée sur Kaggle)
+data_augmentation = models.Sequential([
+    layers.RandomFlip("horizontal_and_vertical"),
+    layers.RandomRotation(0.2),
+    layers.RandomZoom(0.2),
+    layers.RandomContrast(0.2),
+])
+
+model = models.Sequential([
+    layers.Rescaling(1./255, input_shape=(96, 96, 3)),
+    data_augmentation,
+    layers.Conv2D(16, (3, 3), activation="relu"),
+    layers.MaxPooling2D(2, 2),
+    layers.Conv2D(32, (3, 3), activation="relu"),
+    layers.MaxPooling2D(2, 2),
+    layers.Conv2D(64, (3, 3), activation="relu"),
+    layers.MaxPooling2D(2, 2),
+    layers.Flatten(),
+    layers.Dense(64, activation="relu"),
+    layers.Dropout(0.4),
+    layers.Dense(1, activation="sigmoid")
+])
+
+# On charge uniquement les poids (valeurs apprises), pas la structure sauvegardée
+model.load_weights("poids_wheat_yellowrust.weights.h5")
 
 fichier_image = st.file_uploader("Choisissez une image", type=["jpg", "jpeg", "png"])
 
